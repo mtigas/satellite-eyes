@@ -220,17 +220,31 @@
                  coordinate:(CLLocationCoordinate2D)coordinate 
                   zoomLevel:(unsigned short)z 
 {
+
+    // Retina magic
+    CGFloat displayScale = 1.f;
+    if ([[NSScreen mainScreen] respondsToSelector:@selector(backingScaleFactor)]) {
+        displayScale = [NSScreen mainScreen].backingScaleFactor;
+    }
+    CGFloat targetScale = 1.f;
+    if ([screen respondsToSelector:@selector(backingScaleFactor)]) {
+        targetScale = screen.backingScaleFactor;
+    }
+    CGRect mainScreenFrame = [[NSScreen mainScreen] frame];
+    mainScreenFrame.size.height *= displayScale;
+    mainScreenFrame.size.width *= displayScale;
+    CGRect targetScreenFrame = screen.frame;
+    targetScreenFrame.size.height *= targetScale;
+    targetScreenFrame.size.width *= targetScale;
+    
     // Find the centre tile
     CGPoint centerTile = [TTMapTile coordinateToPoint:coordinate zoomLevel:z];
 
-    CGRect mainScreenFrame = [[NSScreen mainScreen] frame];
-    CGRect targetScreenFrame = screen.frame;
-    
     // Get the size and origin of the main screen in tiles
-    float mainScreenTileHeight = NSHeight(mainScreenFrame)/TILE_SIZE;
-    float mainScreenTileWidth = NSWidth(mainScreenFrame)/TILE_SIZE;
-    float mainScreenTileOriginX = centerTile.x - mainScreenTileWidth/2;
-    float mainScreenTileOriginY = centerTile.y + mainScreenTileHeight/2;
+    float mainScreenTileHeight = NSHeight(mainScreenFrame)/(TILE_SIZE*displayScale);
+    float mainScreenTileWidth = NSWidth(mainScreenFrame)/(TILE_SIZE*displayScale);
+    float mainScreenTileOriginX = centerTile.x - mainScreenTileWidth/(2/displayScale);
+    float mainScreenTileOriginY = centerTile.y + mainScreenTileHeight/(2/displayScale);
     
     // Calculate the size and origin of the target screen in tiles, offset from the main screen centre point
     float targetScreenTileHeight = NSHeight(targetScreenFrame)/TILE_SIZE;
@@ -279,6 +293,12 @@
     NSNumber *minZoom = [self.selectedMapType objectForKey:@"minZoom"];
     NSNumber *desiredZoom = [[NSUserDefaults standardUserDefaults] objectForKey:@"zoomLevel"];
     int desiredZoomInt = [desiredZoom intValue];
+    
+    CGFloat displayScale = 1.f;
+    if ([[NSScreen mainScreen] respondsToSelector:@selector(backingScaleFactor)]) {
+        displayScale = [NSScreen mainScreen].backingScaleFactor;
+    }
+    desiredZoomInt += (floor(displayScale) - 1.0);
     
     if (maxZoom && desiredZoomInt > [maxZoom intValue]) {
         desiredZoomInt = [maxZoom intValue];
