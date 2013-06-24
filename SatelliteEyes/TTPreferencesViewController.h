@@ -14,6 +14,7 @@
 }
 
 @property (nonatomic) BOOL startAtLogin;
+@property (nonatomic) BOOL enableRetina;
 @property (nonatomic, retain) IBOutlet WebView *aboutView;
 
 @end

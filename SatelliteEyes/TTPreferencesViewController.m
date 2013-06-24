@@ -12,6 +12,7 @@
 @implementation TTPreferencesViewController
 
 @synthesize startAtLogin;
+@synthesize enableRetina;
 @synthesize aboutView;
 
 - (void)awakeFromNib {
